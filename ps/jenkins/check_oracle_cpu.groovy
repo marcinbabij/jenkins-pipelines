@@ -97,7 +97,7 @@ def cpuPollDecision(String reportPath, String manifestPath) {
 // Ten advisories, not five. A fix can land in a later tag for a CVE
 // published in an older CPU or CSPU, and the stored JSON stays small.
 def ADVISORY_COUNT = '10'
-def SLACK_CHANNEL = '#eol-dev'
+def SLACK_CHANNEL = '#marcinbabij-notifications'
 
 pipeline {
     agent {
