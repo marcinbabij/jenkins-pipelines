@@ -4,7 +4,7 @@ library changelog: false, identifier: 'lib@master', retriever: modernSCM([
 ]) _
 
 def GitHubURL = 'https://github.com'
-def S3_PATH = 's3://percona-jenkins-artifactory/percona-server/mysql-monitor'
+def S3_PATH = 's3://percona-jenkins-artifactory/percona-server/mysql-monitor-mbabij-test'
 
 // Repositories to monitor
 def ReposPathMap = [
@@ -12,7 +12,7 @@ def ReposPathMap = [
 ]
 
 // Slack channels for notifications
-def SlackChannels = ['#mysql', '#eol-dev']
+def SlackChannels = ['#marcinbabij-notifications']
 
 void pushArtifactFile(String FILE_NAME, String S3_PATH) {
     sh """
@@ -50,10 +50,7 @@ pipeline {
             description: 'Jenkins job that archives cpu-bug-cve.json. Blank skips the CVE column.'
         )
     }
-    triggers {
-        // Hourly every month from 2nd week to 4th week (days 8-28)
-        cron('H * 8-28 * *')
-    }
+    // Temporary testing commit: do not schedule this job.
     options {
         disableConcurrentBuilds()
         buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
@@ -166,12 +163,12 @@ pipeline {
 
                     // mysql-sandbox is a private repo. Anonymous fetches from
                     // raw.githubusercontent.com return 404. Use a Jenkins-stored
-                    // token. main is not a pinned SHA, so each build downloads
-                    // the current script.
+                    // token. mbabij is not a pinned SHA, so each build downloads
+                    // the current script on that branch.
                     withCredentials([string(credentialsId: 'Github_Integration', variable: 'GITHUB_API_TOKEN')]) {
                         def sandboxFetch = load 'ps/jenkins/sandbox_fetch.groovy'
                         sandboxFetch.fetch(
-                            'https://raw.githubusercontent.com/Percona-Lab/mysql-sandbox/main/jenkins',
+                            'https://raw.githubusercontent.com/Percona-Lab/mysql-sandbox/mbabij/jenkins',
                             ['check_mysql_repo.py']
                         )
                     }
