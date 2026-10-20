@@ -18,10 +18,15 @@ pipeline {
             defaultValue: 'check-mysql-repo',
             description: 'Job that archived csv_output/*_no_ai.csv. Blank is not allowed.'
         )
-        string(
+        choice(
             name: 'MODEL',
-            defaultValue: '',
-            description: 'claude --model value. Blank uses the CLI default. For Bedrock, also enable USE_BEDROCK and put a Bedrock model id here.'
+            choices: ['opus', 'sonnet', 'haiku', 'fable', 'best', 'opusplan', 'opus[1m]', 'sonnet[1m]'],
+            description: 'claude --model alias. opus is the latest Opus for the provider. For Bedrock, enable USE_BEDROCK; the alias still selects the provider default for that family.'
+        )
+        choice(
+            name: 'EFFORT',
+            choices: ['low', 'medium', 'high', 'xhigh', 'max'],
+            description: 'claude --effort. low is the default.'
         )
         booleanParam(
             name: 'USE_BEDROCK',
@@ -75,7 +80,11 @@ pipeline {
             steps {
                 script {
                     def bedrock = params.USE_BEDROCK ? '1' : '0'
-                    withEnv(["CLAUDE_CODE_USE_BEDROCK=${bedrock}", "CLAUDE_MODEL=${params.MODEL ?: ''}"]) {
+                    withEnv([
+                        "CLAUDE_CODE_USE_BEDROCK=${bedrock}",
+                        "CLAUDE_MODEL=${params.MODEL}",
+                        "CLAUDE_EFFORT=${params.EFFORT}",
+                    ]) {
                         sh '''
                             set -o errexit
                             set -o xtrace
@@ -84,18 +93,12 @@ pipeline {
                             for csv in *_no_ai.csv; do
                                 [ -f "$csv" ] || continue
                                 found=1
-                                if [ -n "$CLAUDE_MODEL" ]; then
-                                    python3 check_mysql_repo_ai.py \
-                                        -i mysql-server-repo \
-                                        -o csv_ai \
-                                        --model "$CLAUDE_MODEL" \
-                                        "$csv"
-                                else
-                                    python3 check_mysql_repo_ai.py \
-                                        -i mysql-server-repo \
-                                        -o csv_ai \
-                                        "$csv"
-                                fi
+                                python3 check_mysql_repo_ai.py \
+                                    -i mysql-server-repo \
+                                    -o csv_ai \
+                                    --model "$CLAUDE_MODEL" \
+                                    --effort "$CLAUDE_EFFORT" \
+                                    "$csv"
                             done
                             if [ "$found" -eq 0 ]; then
                                 echo "ERROR: no *_no_ai.csv was copied"
