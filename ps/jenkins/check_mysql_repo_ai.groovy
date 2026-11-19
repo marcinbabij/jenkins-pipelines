@@ -140,6 +140,19 @@ pipeline {
                         sh '''
                             set -o errexit
                             set -o xtrace
+                            # Temporary probe. The ps3 image has no claude binary.
+                            # Remove this block once the CLI is baked into the image.
+                            echo "PATH=$PATH"
+                            command -v node
+                            command -v npm
+                            node -v
+                            npm -v
+                            sudo env "PATH=$PATH" npm install -g @anthropic-ai/claude-code
+                            GLOBAL_BIN="$(sudo env "PATH=$PATH" npm prefix -g)/bin"
+                            export PATH="${GLOBAL_BIN}:$PATH"
+                            hash -r
+                            command -v claude
+                            claude --version
                             mkdir -p csv_ai
                             found=0
                             for csv in *_no_ai.csv; do
