@@ -141,15 +141,12 @@ pipeline {
                             set -o errexit
                             set -o xtrace
                             # Temporary probe. The ps3 image has no claude binary.
-                            # Remove this block once the CLI is baked into the image.
+                            # The native installer does not use Node. Remove this
+                            # block once claude is baked into the image.
                             echo "PATH=$PATH"
-                            command -v node
-                            command -v npm
-                            node -v
-                            npm -v
-                            sudo env "PATH=$PATH" npm install -g @anthropic-ai/claude-code
-                            GLOBAL_BIN="$(sudo env "PATH=$PATH" npm prefix -g)/bin"
-                            export PATH="${GLOBAL_BIN}:$PATH"
+                            curl -fsSL https://claude.ai/install.sh -o /tmp/claude-install.sh
+                            bash /tmp/claude-install.sh
+                            export PATH="${HOME}/.local/bin:${PATH}"
                             hash -r
                             command -v claude
                             claude --version
