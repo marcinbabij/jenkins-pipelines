@@ -15,8 +15,8 @@ pipeline {
     parameters {
         string(
             name: 'SOURCE_JOB',
-            defaultValue: 'check-mysql-repo',
-            description: 'Job that archived csv_output/*_no_ai.csv. Blank is not allowed.'
+            defaultValue: 'mbabij-test-mysql-repo',
+            description: 'Job that archived csv_output/*_no_ai.csv. Blank is not allowed. Testing default is the ps3 tag job.'
         )
         choice(
             name: 'MODEL',
@@ -62,8 +62,8 @@ pipeline {
         )
         choice(
             name: 'EFFORT',
-            choices: ['xhigh', 'low', 'medium', 'high', 'max'],
-            description: 'claude --effort. xhigh (extra-high) is the default. The levels are low, medium, high, xhigh, max.'
+            choices: ['low', 'medium', 'high', 'xhigh', 'max'],
+            description: 'claude --effort. low is the testing default. The levels are low, medium, high, xhigh, max.'
         )
         booleanParam(
             name: 'USE_BEDROCK',
@@ -72,8 +72,8 @@ pipeline {
         )
         string(
             name: 'LIMIT',
-            defaultValue: '0',
-            description: 'Pass --limit to check_mysql_repo_ai.py. 0 analyzes every row of each copied CSV. A positive number stops each file after that many rows.'
+            defaultValue: '2',
+            description: 'Pass --limit to check_mysql_repo_ai.py. Testing default is 2 rows per copied CSV. 0 analyzes every row.'
         )
     }
     options {
@@ -111,7 +111,7 @@ pipeline {
                     script {
                         def sandboxFetch = load 'ps/jenkins/sandbox_fetch.groovy'
                         sandboxFetch.fetch(
-                            'https://raw.githubusercontent.com/Percona-Lab/mysql-sandbox/main/jenkins',
+                            'https://raw.githubusercontent.com/Percona-Lab/mysql-sandbox/mbabij/jenkins',
                             ['check_mysql_repo_ai.py']
                         )
                     }

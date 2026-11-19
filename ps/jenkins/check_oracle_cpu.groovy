@@ -97,7 +97,7 @@ def cpuPollDecision(String reportPath, String manifestPath) {
 // Ten advisories, not five. A fix can land in a later tag for a CVE
 // published in an older CPU or CSPU, and the stored JSON stays small.
 def ADVISORY_COUNT = '10'
-def SLACK_CHANNEL = '#eol-dev'
+def SLACK_CHANNEL = '#marcinbabij-notifications'
 
 pipeline {
     agent {
@@ -141,13 +141,13 @@ pipeline {
                 sh "rm -rf ${STATE} ${BUGS} ${MANIFEST} ${REPORT} ${STATUS} ${POLL_RC} cpu-description.txt cpu-note.json cpu-thread.json check_oracle_cpu.py oracle_cpu tests"
                 // mysql-sandbox is a private repo. Anonymous fetches from
                 // raw.githubusercontent.com return 404. Use a Jenkins-stored
-                // token. main is not a pinned SHA, so each build downloads
-                // the current scripts.
+                // token. mbabij is not a pinned SHA, so each build downloads
+                // the current scripts on that branch.
                 script {
                     withCredentials([string(credentialsId: 'Github_Integration', variable: 'GITHUB_API_TOKEN')]) {
                         def sandboxFetch = load 'ps/jenkins/sandbox_fetch.groovy'
                         sandboxFetch.fetch(
-                            'https://raw.githubusercontent.com/Percona-Lab/mysql-sandbox/main/jenkins',
+                            'https://raw.githubusercontent.com/Percona-Lab/mysql-sandbox/mbabij/jenkins',
                             [
                                 'check_oracle_cpu.py',
                                 'oracle_cpu/__init__.py',
